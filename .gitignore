@@ -1,0 +1,11 @@
+# Ignore Go module files
+/bin/
+/pkg/
+/vendor/
+
+# Ignore environment files
+.env
+
+# Ignore IDE files
+.vscode/
+.idea/
