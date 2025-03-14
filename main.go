@@ -9,6 +9,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
+	"github.com/nguyenhoanganh1808/movie-dialogue-generator/api"
+	"github.com/nguyenhoanganh1808/movie-dialogue-generator/db"
 )
 
 func main() {
@@ -18,8 +20,13 @@ func main() {
 		log.Println("Warning: .env file not found")
 	}
 
+	// Initialize database
+	db.InitDB()
+
 	// Create Fiber app
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 10 * 1024 * 1024, // 10MB limit for voice synthesis
+	})
 
 	// Middleware
 	app.Use(logger.New())
@@ -35,6 +42,7 @@ func main() {
 	}
 
 	// Start server
+	log.Printf("Server started on port %s", port)
 	log.Fatal(app.Listen(":" + port))
 }
 
@@ -44,17 +52,21 @@ func setupRoutes(app *fiber.App) {
 	})
 
 	// API routes
-	api := app.Group("/api")
+	apiGroup := app.Group("/api")
 	
 	// Dialogue generation endpoint
-	api.Post("/generate", generateDialogue)
+	apiGroup.Post("/generate", api.GenerateDialogue)
+	apiGroup.Post("/save-dialogue", api.SaveDialogue)
+	apiGroup.Get("/saved-dialogues", api.GetSavedDialogues)
 	
 	// Character endpoints
-	api.Get("/characters", getCharacters)
-	api.Post("/characters", createCharacter)
+	apiGroup.Get("/characters", api.GetCharacters)
+	apiGroup.Post("/characters", api.CreateCharacter)
 	
 	// Reference dialogue endpoints
-	api.Get("/references", getReferenceDialogues)
-	api.Post("/references", addReferenceDialogue)
+	apiGroup.Get("/references", api.GetReferenceDialogues)
+	apiGroup.Post("/references", api.AddReferenceDialogue)
+	
+	// Voice synthesis endpoint (bonus feature)
+	apiGroup.Post("/synthesize", api.SynthesizeVoice)
 }
-
