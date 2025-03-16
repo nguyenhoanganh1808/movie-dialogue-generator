@@ -181,7 +181,7 @@ func GenerateDialogue(c *fiber.Ctx) error {
 			})
 		}
 
-		log.Println("Response:", hfResp[0].GeneratedText)
+		log.Printf("Response: %s", hfResp[0].GeneratedText)
 	
 		// Process the AI response
 		aiResponse := hfResp[0].GeneratedText
@@ -254,7 +254,7 @@ func parseDialogueResponse(aiResponse string, characters []CharacterRequest) []D
 		// Verify that this character exists in our list
 		characterExists := false
 		for _, char := range characters {
-			if char.Name == characterName {
+			if strings.Contains(char.Name, characterName) {
 				characterExists = true
 				break
 			}
